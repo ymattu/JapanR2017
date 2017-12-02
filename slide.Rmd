@@ -1,0 +1,427 @@
+---
+title: "Rの演算子特集"
+author: "@y__mattu"
+date: "2017/12/2 Japan.R 2017 LT"
+output:
+  revealjs::revealjs_presentation:
+    transition: convex
+    css: for_revealjs.css
+    theme: sky
+    highlight: kate
+    center: true
+    self_contained: false
+    reveal_plugins: ["chalkboard"]
+    reveal_options:
+      slideNumber: true
+      chalkboard:
+        theme: whiteboard
+pandoc_args: [
+  '--from', 'markdown+autolink_bare_uris+tex_math_single_backslash-implicit_figures'
+]
+---
+
+```{r eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, comment=""}
+knitr::opts_chunk$set(echo = TRUE,
+                      eval = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      comment = "",
+                      fig.height = 10,
+                      fig.width = 10,
+                      out.height = 300,
+                      out.width = 300)
+options(dplyr.print_max = 1e9)
+```
+
+# はじめに
+
+## 誰？
+
+<div class="column1">
+- 松村優哉
+- <u>Twitter</u>: **y\_\_mattu**
+- <u>GitHub</u>: **ymattu**
+- M1
+- 計量経済学、ベイズ統計、因果推論、マーケティング
+- 言語: R, SAS, Python
+- https://ymattu.github.io/
+- http://y-mattu.hatenablog.com/
+- Tokyo.R / Japan.R 運営
+</div>
+
+<div class="column2">
+![icon](./slide_img/twitter_icon.jpg)
+</div>
+
+## アルバイトとか
+- コミュニケーションアプリの分析
+- Web 広告のログ解析
+- 電子コミックと医療システムに関する解析と開発 <br> ←イマココ
+- たまに受託
+
+### 特許
+大学での研究プロジェクトで取得予定(権利は共同研究先)
+
+## 著書(共著)
+![book](./slide_img/datasci.jpg)
+
+## 作ったパッケージ
+### [MlBayesOpt](https://github.com/ymattu/MlBayesOpt)
+- 機械学習のパラメーターをベイズ最適化でチューニングする R パッケージ
+- メンテ頑張ります...
+
+### [rjumanpp](https://github.com/ymattu/rjumanpp)
+- 形態素解析機 JUMAN++の R ラッパー
+- 最低限の機能しかないのでメンテ頑張ります...
+
+## 今日のお話
+- Rの演算子を出来る限りいっぱい紹介する
+- 細かいことはあとでスライドをみてください。
+- スライドのソースは [GitHub](https://github.com/ymattu/JapanR2017)で公開しています。
+
+# 代入演算子
+
+# <-
+## どんなのか {#aboutdainyuu}
+おなじみのやつ
+```{r}
+vec <- 1:10
+vec
+```
+
+逆(`->`)でもいい
+
+## = との違いは？
+- 基本的には(S3クラスをいじってる限りは)ない
+- 細かい話はいずれどこかで...
+
+# <<-
+## どんなのか {#aboutforever}
+- 永続代入演算子
+- 関数の中でグローバル変数に代入したいとき
+
+```{r}
+x <- 10                    # グローバル変数 x
+ex_func <- function () {
+  x <- 600                 # 関数 ex_func() 中のローカル変数 x
+  x <<- 100                # グローバル変数 x に 99 を代入する
+  print(x)                 # ローカル変数 x の値を表示
+ }
+```
+
+## 結果 {#resforever}
+```{r}
+ex_func()
+x
+```
+
+
+
+
+# 算術演算子
+
+# +
+## どんなのか
+足します。
+```{r plus}
+a <- 9
+b <- 2
+
+a + b
+```
+
+## 行列
+```{r}
+x <- matrix(1:6, nrow = 2, ncol = 3)
+y <- matrix(7:12, nrow = 2, ncol = 3)
+x
+y
+```
+
+## 結果
+```{r}
+x + y
+```
+
+## 注意
+よくあるプログラミング言語みたいに、文字列はくっつけられません
+```{r plus_error, error=TRUE}
+"Japan" + "R"
+```
+
+# -
+## どんなのか {#aboutminus}
+引きます
+```{r}
+a - b
+```
+
+## 行列 {#minusmatrix}
+```{r}
+x - y
+```
+
+# *
+
+## どんなのか {#aboutstar}
+かけます
+```{r}
+a * b
+```
+
+## 行列 {#matrixstar}
+**要素ごとの掛け算**(行列の積ではない)
+```{r}
+x * y
+```
+
+# %*%
+
+## どんなのか {#aboutmatrix}
+行列の積を計算します。
+```{r}
+# 行列の積なので転置する必要あり
+x %*% t(y)
+```
+
+# /
+
+## どんなのか {#aboutslash}
+割ります
+```{r}
+a / b
+```
+
+## 行列 {#matrixslash}
+```{r}
+x / y
+```
+
+# %/%
+## どんなのか {#aboutint}
+整数の範囲での除算
+```{r}
+a %/% b
+
+# 以下と同じ
+floor(a / b)
+```
+
+# %%
+
+## どんなのか {#aboutmod}
+余りを出す
+```{r}
+9 %% 2
+```
+
+# ^
+
+## どんなのか {#abouthat}
+階乗を計算します
+```{r}
+a ^ b
+```
+
+## 行列 {#matrixhat}
+それぞれの要素がn乗されます。
+```{r}
+x ^ 2
+```
+
+# 比較演算子
+
+# ==, !=
+## どんなのか {#aboutequal}
+同じかどうかを判定(TRUE, FALSE で判定)
+```{r}
+a == b
+
+aa <- 9
+a == a
+```
+
+## 使い所 {#usageequal}
+```{r}
+library(dplyr)
+iris %>%
+  filter(Sepal.Length == 5.0)
+```
+
+# >, <, =>, <=
+## どんなのか {#aboutdai}
+大小を判定
+
+```{r}
+a < b
+```
+
+## 使い所 {#usagedai}
+```{r}
+iris %>%
+  filter(Sepal.Length >= 6.0)
+```
+
+# 論理演算子
+
+# &, &&, |, ||
+## どんなのか {#about}
+- 条件(ベクトルの要素)を判定
+
+```{r}
+iris %>%
+  filter(Sepal.Length >= 6 | Sepal.Width <= 3)
+```
+
+## &, && の違い
+下記リンクを参考
+http://aaaaushisan.blogspot.jp/2011/12/r.html
+
+# コロン演算子
+
+#:
+
+## どんなのか {#aboutcolon}
+公差1の整数ベクトル
+```{r}
+c(1:10)
+```
+
+# ::, :::
+## どんなのか{#aboutdoublecolon}
+- パッケージの関数を取り出す
+- :: はエクスポートされたもの、::: はエクスポートされてないもの
+- library()で読み込めば :: は基本的には不要
+
+## こんなこともできます
+
+```{r}
+ggmap::ggimage(ggmap::hadley)
+```
+
+# **magrittr**パッケージ編
+
+# %>%
+## パイプ演算子
+- パイプの前までの内容をパイプの後の関数の第一引数にいれる
+- dplyr などを読み込めば使える
+```{r}
+iris %>%
+  group_by(Species) %>%
+  summarise(feq = n())
+```
+
+# %<>%
+## 上書き演算子
+```{r}
+library(magrittr)
+iris$Sepal.Length %<>% sqrt # 平方根をとって上書き
+mean(iris$Sepal.Length)
+```
+
+# %T%
+## tee 演算子
+```{r}
+rnorm(200) %>%
+matrix(ncol = 2) %T>%
+plot %>% # plot は通常は何も返さないけど...
+colSums
+```
+
+
+# %$%
+## dollar 演算子
+- パイプの中で $ を使いたいとき
+- データフレームよりリストが出てくるときに便利
+
+## 例 {#exampledollar}
+```{r}
+iris %>%
+　select(Sepal.Length, Petal.Length) %>% 
+  prcomp() %$%
+  x %>%
+  as_data_frame() %>% 
+  mutate(datID = row_number()) %>% 
+  left_join(mutate(iris, datID = 1:nrow(iris)), .) %>% 
+  select(-datID) %>% 
+  group_by(Species) %>% 
+  summarise_all(mean)
+```
+
+# **pipeR** パッケージ編
+
+# %>>%
+## Kun Ren 作のやつ
+- ごめんなさい歩tンド使わないのでわからないです...
+- 一応使い方が[邦訳されてます](https://qiita.com/hoxo_m/items/b80778d46684b818abd2)。
+- magrittr のパイプで特に困ってないです
+
+
+# **purrr**パッケージ編
+
+# %||%
+
+## どんなのか {#aboutpurrr}
+xがNULLだったらyの値を返す中置演算子
+```{r}
+library(purrr)
+1 %||% 2
+NULL %||% 2
+```
+
+
+# %@%
+## どんなのか {#aboutpurrr2}
+attributeを取り出す中置演算子
+```{r}
+matrix(1:6, nrow = 2) %@% "dim"
+```
+
+# **rlang** パッケージ編
+## Tidyeval で使う
+- Tidyeval については [yuttannihilationさんの記事](https://speakerdeck.com/yutannihilation/dplyrzai-ru-men-tidyevalbian)を見てください。
+- 自分も以前作ったやつをそのうち公開するかも...
+
+# !!
+## クオートを外す
+```{r}
+library(rlang)
+a <- 1
+b <- 2
+
+quo(sum(a, b))
+
+quo(sum(!! a, b))
+```
+
+
+# !!!
+## !! の複数版
+```{r}
+quo(list(!! 1:10))
+
+quo(list(!!! 1:10))
+```
+
+## dplyr では {#indplyr}
+```{r}
+svars <- list(quo(Species), quo(Sepal.Length))
+
+iris %>%
+  select(!!! svars)
+```
+
+# :=
+## rename とかで使えるやつ
+```{r}
+newname <- "aaaa"
+iris %>%
+  rename(!! newname := Species)
+```
+
+
+# おわりに
+## まとめ
+- 演算子を使いこなせるときっといいことがあるよ
+- Enjoy !
+
